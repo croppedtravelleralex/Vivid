@@ -64,7 +64,7 @@ async fn create_event(
 async fn get_event(
     State(state): State<ApiState>,
     Path(id): Path<Uuid>,
-) -> Result<Json<Value>, StatusCode> {
+) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
     let world = state.engine.world.read().await;
     for hist in &world.timeline.events {
         if hist.id == id {
@@ -74,5 +74,5 @@ async fn get_event(
             })));
         }
     }
-    Err(StatusCode::NOT_FOUND)
+    Err((StatusCode::NOT_FOUND, Json(json!({"status":"error","message":"not found"}))))
 }

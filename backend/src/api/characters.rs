@@ -1,10 +1,13 @@
-use axum::extract::{Path, State};
-use axum::http::StatusCode;
-use axum::Json;
+use axum::response::IntoResponse;
+use axum::{extract::{Path, State}, http::StatusCode, Json};
 use serde_json::{json, Value};
 use uuid::Uuid;
 
 use crate::ApiState;
+
+fn not_found() -> (StatusCode, Json<Value>) {
+    (StatusCode::NOT_FOUND, Json(json!({ "status": "error", "message": "Not found" })))
+}
 
 pub fn routes() -> axum::Router<ApiState> {
     axum::Router::new()
@@ -15,7 +18,7 @@ pub fn routes() -> axum::Router<ApiState> {
 }
 
 /// GET /api/v1/characters
-async fn character_list(State(state): State<ApiState>) -> Result<Json<Value>, StatusCode> {
+async fn character_list(State(state): State<ApiState>) -> Json<Value> {
     let world = state.engine.world.read().await;
     let mut chars = vec![];
 
@@ -37,14 +40,14 @@ async fn character_list(State(state): State<ApiState>) -> Result<Json<Value>, St
             }
         }
     }
-    Ok(Json(json!({ "status": "ok", "data": chars })))
+    Json(json!({ "status": "ok", "data": chars }))
 }
 
 /// GET /api/v1/characters/:id
 async fn character_detail(
     State(state): State<ApiState>,
     Path(id): Path<Uuid>,
-) -> Result<Json<Value>, StatusCode> {
+) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
     let world = state.engine.world.read().await;
     for entity_ref in world.characters.iter() {
         if let Some(char_id) = entity_ref.get::<&Uuid>() {
@@ -57,14 +60,10 @@ async fn character_detail(
                         "id": *char_id,
                         "name": name,
                         "state": {
-                            "hp": cs.hp,
-                            "max_hp": cs.max_hp,
-                            "hunger": cs.hunger,
-                            "warmth": cs.warmth,
-                            "fatigue": cs.fatigue,
-                            "mental": cs.mental,
-                            "stress": cs.stress,
-                            "location": cs.location,
+                            "hp": cs.hp, "max_hp": cs.max_hp,
+                            "hunger": cs.hunger, "warmth": cs.warmth,
+                            "fatigue": cs.fatigue, "mental": cs.mental,
+                            "stress": cs.stress, "location": cs.location,
                             "is_idle": cs.is_idle,
                         },
                     }
@@ -72,22 +71,20 @@ async fn character_detail(
             }
         }
     }
-    Err(StatusCode::NOT_FOUND)
+    Err(not_found())
 }
 
 /// GET /api/v1/characters/:id/memory
 async fn character_memory(
     State(state): State<ApiState>,
     Path(id): Path<Uuid>,
-) -> Result<Json<Value>, StatusCode> {
+) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
     let world = state.engine.world.read().await;
-    let found = world.characters.iter().any(|er| {
-        er.get::<&Uuid>().map(|r| *r) == Some(id)
-    });
+    let found = world.characters.iter().any(|er| er.get::<&Uuid>().map(|r| *r) == Some(id));
     if found {
         Ok(Json(json!({ "status": "ok", "data": [] })))
     } else {
-        Err(StatusCode::NOT_FOUND)
+        Err(not_found())
     }
 }
 
@@ -95,14 +92,12 @@ async fn character_memory(
 async fn character_relationships(
     State(state): State<ApiState>,
     Path(id): Path<Uuid>,
-) -> Result<Json<Value>, StatusCode> {
+) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
     let world = state.engine.world.read().await;
-    let found = world.characters.iter().any(|er| {
-        er.get::<&Uuid>().map(|r| *r) == Some(id)
-    });
+    let found = world.characters.iter().any(|er| er.get::<&Uuid>().map(|r| *r) == Some(id));
     if found {
         Ok(Json(json!({ "status": "ok", "data": [] })))
     } else {
-        Err(StatusCode::NOT_FOUND)
+        Err(not_found())
     }
 }

@@ -32,3 +32,4 @@ pin-project = "1"
 
 [dev-dependencies]
 proptest = "1"
+tower = { version = "0.5", features = ["util"] }
