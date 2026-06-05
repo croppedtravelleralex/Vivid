@@ -1,0 +1,53 @@
+schema_version: "1.0"
+
+engine:
+  detailed_tick_minutes: 5
+  fastforward_tick_hours: 1
+  idle_threshold: 3
+  random_seed: 42
+
+llm:
+  api_key: "${LLM_API_KEY}"
+  base_url: "https://sub2api.closeapi.top/v1"
+  model: "deepseek-v4-flash"
+  max_concurrent: 10
+  timeout_seconds: 30
+
+checkpoint:
+  interval: 100
+  max_auto: 50
+  max_delta: 200
+
+event_log:
+  max_entries: 50000
+  auto_archive_after: 100000
+
+memory:
+  max_per_character: 1000
+  auto_summarize_after: 500
+
+social:
+  degroot_weight_base: 0.5
+  friedkin_johnsen_lambda: 0.4
+  hk_epsilon: 0.3
+  bicchieri_empirical_threshold: 0.4
+  bicchieri_normative_threshold: 0.3
+  gossip_chance: 0.2
+  panic_threshold_mean: 0.4
+  schelling_threshold: 0.35
+
+chaos:
+  logistic_r_default: 2.8
+  sandpile_threshold: 4.0
+  power_law_alpha: 1.5
+  langton_lambda: 0.35
+
+economics:
+  loss_aversion_lambda: 2.25
+  prospect_alpha: 0.88
+  hyperbolic_discount_k: 0.5
+  production_alpha_forage: 0.6
+  production_alpha_construction: 0.7
+  production_alpha_scout: 0.4
+  ostrom_sustainability_threshold: 0.7
+  cooperation_critical_scarcity: 0.75

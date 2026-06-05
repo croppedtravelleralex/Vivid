@@ -1,0 +1,31 @@
+{
+  "seed_events": [
+    {
+      "id": "seed-001",
+      "trigger_tick": 0,
+      "event_type": "external_stimulus",
+      "title": "异常降温",
+      "description": "天气预报显示未来一周气温将持续下降到零下15度，远超同期正常水平。",
+      "severity": "major",
+      "participants": []
+    },
+    {
+      "id": "seed-002",
+      "trigger_condition": { "type": "temperature_below", "threshold": -20 },
+      "event_type": "external_stimulus",
+      "title": "水管冻裂",
+      "description": "持续的低温导致镇上多处水管冻裂，供水系统开始出现问题。",
+      "severity": "major",
+      "participants": []
+    }
+  ],
+  "conditional_triggers": [
+    {
+      "id": "trigger-food-shortage",
+      "condition": { "type": "resource_below", "resource": "food", "threshold": 50 },
+      "event_type": "resource_conflict",
+      "title": "食物短缺",
+      "severity": "critical"
+    }
+  ]
+}

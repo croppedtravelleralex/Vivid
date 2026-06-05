@@ -1,0 +1,112 @@
+.graph-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.graph-svg .link {
+  stroke: var(--border-light);
+  stroke-width: 1.5;
+  stroke-opacity: 0.6;
+  transition: stroke-opacity var(--transition-fast);
+}
+.graph-svg .link:hover {
+  stroke-opacity: 1;
+}
+.graph-svg .link-strong {
+  stroke-width: 3;
+  stroke-opacity: 0.9;
+}
+.graph-svg .link-medium {
+  stroke-width: 2;
+  stroke-opacity: 0.6;
+}
+.graph-svg .link-weak {
+  stroke-width: 1;
+  stroke-opacity: 0.3;
+}
+.graph-svg .link-positive {
+  stroke: var(--success);
+}
+.graph-svg .link-negative {
+  stroke: var(--danger);
+}
+.graph-svg .link-neutral {
+  stroke: var(--text-muted);
+}
+
+.graph-svg .node {
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+.graph-svg .node:hover {
+  opacity: 0.85;
+}
+.graph-svg .node-drag {
+  cursor: grabbing;
+}
+
+.graph-svg .node-circle {
+  fill: var(--accent);
+  stroke: var(--bg-primary);
+  stroke-width: 2;
+  transition: r var(--transition-normal);
+}
+.graph-svg .node-circle:hover {
+  filter: brightness(1.2);
+}
+
+.graph-svg .node-label {
+  fill: var(--text-primary);
+  font-size: 11px;
+  font-family: var(--font-sans);
+  text-anchor: middle;
+  pointer-events: none;
+  user-select: none;
+}
+.graph-svg .node-label-shadow {
+  fill: none;
+  stroke: var(--bg-primary);
+  stroke-width: 3;
+  opacity: 0.7;
+}
+
+.graph-svg .location-node {
+  fill: var(--warning-bg);
+  stroke: var(--warning);
+  stroke-width: 1.5;
+}
+.graph-svg .location-label {
+  fill: var(--warning);
+  font-size: 10px;
+  font-family: var(--font-sans);
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.graph-svg .edge-label {
+  font-size: 9px;
+  font-family: var(--font-sans);
+  fill: var(--text-muted);
+  text-anchor: middle;
+}
+
+.graph-controls-overlay {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 10;
+}
+
+.graph-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}

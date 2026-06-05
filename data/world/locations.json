@@ -1,0 +1,50 @@
+[
+  {
+    "id": "loc-hardware-store",
+    "name": "五金店",
+    "description": "张远家的五金店，两层的临街铺面。一楼是店面，二楼住人。库存各类工具、建材、家用五金。",
+    "category": "shelter",
+    "resources": { "tools": 50, "building_materials": 30, "fuel": 5 },
+    "connections": [
+      { "target": "loc-repair-shop", "distance_km": 0.5, "difficulty": "easy", "description": "乡镇街道，两侧是民房" },
+      { "target": "loc-supermarket", "distance_km": 1.0, "difficulty": "easy", "description": "穿过镇中心的主街" }
+    ],
+    "tags": ["safe_zone", "initial"]
+  },
+  {
+    "id": "loc-repair-shop",
+    "name": "陈磊修车铺",
+    "description": "陈磊开的修车铺，主要修卡车和面包车。有地沟和基础焊接设备。",
+    "category": "shelter",
+    "resources": { "tools": 40, "fuel": 30, "vehicle_parts": 25 },
+    "connections": [
+      { "target": "loc-hardware-store", "distance_km": 0.5, "difficulty": "easy", "description": "乡镇街道" },
+      { "target": "loc-supermarket", "distance_km": 1.2, "difficulty": "easy", "description": "绕镇小路" }
+    ],
+    "tags": ["safe_zone", "initial"]
+  },
+  {
+    "id": "loc-supermarket",
+    "name": "小镇超市",
+    "description": "镇上最大的超市，两层的综合卖场。一楼食品日用品，二楼家电服装。末日初期已被部分搜刮。",
+    "category": "resource",
+    "resources": { "food": 200, "water": 100, "medicine": 15, "clothing": 80 },
+    "connections": [
+      { "target": "loc-hardware-store", "distance_km": 1.0, "difficulty": "easy", "description": "镇中心主街" },
+      { "target": "loc-repair-shop", "distance_km": 1.2, "difficulty": "easy", "description": "绕镇小路" },
+      { "target": "loc-clinic", "distance_km": 2.0, "difficulty": "moderate", "description": "出镇往东的公路" }
+    ],
+    "tags": ["lootable", "initial"]
+  },
+  {
+    "id": "loc-clinic",
+    "name": "镇卫生院",
+    "description": "镇上的卫生院，一栋三层小楼。有基础医疗设备和少量药品库存。",
+    "category": "medical",
+    "resources": { "medicine": 60, "medical_supplies": 40, "food": 10 },
+    "connections": [
+      { "target": "loc-supermarket", "distance_km": 2.0, "difficulty": "moderate", "description": "出镇往东的公路" }
+    ],
+    "tags": ["lootable", "initial"]
+  }
+]
