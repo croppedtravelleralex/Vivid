@@ -484,6 +484,31 @@ pub struct CharacterSummary {
 }
 
 // ---------------------------------------------------------------------------
+// CharacterDetail (API response — structured, doc 02 aligned)
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CharacterDetailResponse {
+    pub status: String,
+    pub data: CharacterDetailData,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CharacterDetailData {
+    pub id: Uuid,
+    pub name: String,
+    pub hp: f64,
+    pub max_hp: f64,
+    pub hunger: f64,
+    pub warmth: f64,
+    pub fatigue: f64,
+    pub mental: f64,
+    pub stress: f64,
+    pub location: Option<Uuid>,
+    pub is_idle: bool,
+}
+
+// ---------------------------------------------------------------------------
 // Migration: V1 -> V3
 // ---------------------------------------------------------------------------
 

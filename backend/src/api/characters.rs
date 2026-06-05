@@ -2,6 +2,7 @@ use axum::{extract::{Path, State}, http::StatusCode, Json};
 use serde_json::{json, Value};
 use uuid::Uuid;
 
+use crate::models::character::{CharacterDetailData, CharacterDetailResponse};
 use crate::ApiState;
 
 fn not_found() -> (StatusCode, Json<Value>) {
@@ -53,20 +54,23 @@ async fn character_detail(
             if *char_id == id {
                 let name = &**entity_ref.get::<&String>().unwrap();
                 let cs = &*entity_ref.get::<&crate::models::world::CharacterState>().unwrap();
-                return Ok(Json(json!({
-                    "status": "ok",
-                    "data": {
-                        "id": *char_id,
-                        "name": name,
-                        "state": {
-                            "hp": cs.hp, "max_hp": cs.max_hp,
-                            "hunger": cs.hunger, "warmth": cs.warmth,
-                            "fatigue": cs.fatigue, "mental": cs.mental,
-                            "stress": cs.stress, "location": cs.location,
-                            "is_idle": cs.is_idle,
-                        },
-                    }
-                })));
+                let detail = CharacterDetailResponse {
+                    status: "ok".into(),
+                    data: CharacterDetailData {
+                        id: *char_id,
+                        name: name.to_string(),
+                        hp: cs.hp,
+                        max_hp: cs.max_hp,
+                        hunger: cs.hunger,
+                        warmth: cs.warmth,
+                        fatigue: cs.fatigue,
+                        mental: cs.mental,
+                        stress: cs.stress,
+                        location: cs.location,
+                        is_idle: cs.is_idle,
+                    },
+                };
+                return Ok(Json(json!(detail)));
             }
         }
     }

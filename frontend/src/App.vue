@@ -83,7 +83,7 @@ provide('worldState', worldState)
 provide('characters', characters)
 provide('characterCount', characterCount)
 provide('notification', { show: showNotification })
-provide('confirm', showConfirm)
+// confirm dialog available via template slot
 
 // Load initial data
 onMounted(async () => {
