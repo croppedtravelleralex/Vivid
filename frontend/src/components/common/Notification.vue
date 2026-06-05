@@ -70,7 +70,6 @@ function trigger(msg, type = 'info', duration = 4000) {
   }
 }
 
-defineExpose({ trigger, close })
 </script>
 
 <style scoped>

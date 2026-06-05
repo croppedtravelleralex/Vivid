@@ -124,6 +124,8 @@ async function deleteCheckpoint(tag) {
   try {
     const { default: api } = await import('../api/index.js')
     await api.delete('/timeline/checkpoints/' + encodeURIComponent(tag))
+    // Also try via timeline API
+    try { await loadCheckpoint('') } catch (_) {}
     notification.show('Checkpoint deleted', 'success')
     await loadCheckpoints()
   } catch (err) {

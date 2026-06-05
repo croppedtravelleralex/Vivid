@@ -66,13 +66,11 @@
 
 <script setup>
 import { computed, inject } from 'vue'
-import { useRouter } from 'vue-router'
 import SpeedControl from '../components/timeline/SpeedControl.vue'
 import EventLog from '../components/timeline/EventLog.vue'
 import EnvironmentPanel from '../components/world/EnvironmentPanel.vue'
 import CharacterCard from '../components/character/CharacterCard.vue'
 
-const router = useRouter()
 const sim = inject('simulation')
 const ws = inject('ws')
 const worldState = inject('worldState')

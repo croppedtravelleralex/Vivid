@@ -2,6 +2,14 @@ pub mod simulation_loop;
 pub mod timeline;
 pub mod world_state;
 
+// M2 event subsystems (doc 12)
+pub mod storyteller;
+pub mod emergent_detector;
+pub mod cascade_engine;
+pub mod event_memory;
+pub mod probability_tree;
+pub mod narrative_filter;
+
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 

@@ -30,13 +30,10 @@
 
 <script setup>
 import { ref, computed, inject, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
 import RelationGraph from '../components/graph/RelationGraph.vue'
 import GraphControls from '../components/graph/GraphControls.vue'
-import { getCharacters } from '../api/character.js'
 import { getCharacterRelationships } from '../api/character.js'
 
-const router = useRouter()
 const characters = inject('characters', { value: [] })
 const ws = inject('ws')
 
@@ -64,9 +61,15 @@ function handleNodeClick(node) {
   selectedNode.value = node
 }
 
-function zoomIn() {}
-function zoomOut() {}
-function resetZoom() {}
+function zoomIn() {
+    if (graphRef) graphRef.zoomIn()
+}
+function zoomOut() {
+    if (graphRef) graphRef.zoomOut()
+}
+function resetZoom() {
+    if (graphRef) graphRef.resetZoom()
+}
 
 async function loadRelationships() {
   const chars = graphChars.value
