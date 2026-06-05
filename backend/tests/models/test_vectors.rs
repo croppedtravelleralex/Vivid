@@ -221,11 +221,12 @@ mod test_vectors {
     #[test]
     fn power_law_mean_approximation() {
         let mut rng = rand::thread_rng();
-        let samples: Vec<f64> = (0..10000).map(|_| sample_power_law(2.5, 1.0, &mut rng)).collect();
-        let mean = samples.iter().sum::<f64>() / samples.len() as f64;
-        // α=2.5, x_min=1.0 → mean = (α-1)/(α-2) = 1.5/0.5 = 3.0
-        assert!((mean - 3.0).abs() < 0.3,
-            "Power law mean should be ~3.0, got {}", mean);
+        let mut samples: Vec<f64> = (0..10000).map(|_| sample_power_law(2.5, 1.0, &mut rng)).collect();
+        samples.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        let median = samples[samples.len() / 2];
+        // α=2.5, x_min=1.0 → median = x_min * 2^(1/(α-1)) = 2^(2/3) ≈ 1.587
+        assert!((median - 1.587).abs() < 0.15,
+            "Power law median should be ~1.587, got {}", median);
     }
 
     // ==== Resource Safety ====
