@@ -1,8 +1,94 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+// V1 flat format (actual JSON files from the novel project)
 // ---------------------------------------------------------------------------
-// V1 character card (legacy, for migration)
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CharacterCardV1Flat {
+    #[serde(rename = "schemaVersion")]
+    pub schema_version: String,
+    pub name: String,
+    #[serde(default)]
+    pub alias: Vec<String>,
+    pub gender: String,
+    pub age: u32,
+    pub appearance: String,
+    pub personality: String,
+    pub background: String,
+    pub speech_style: String,
+    #[serde(default)]
+    pub skills: Vec<String>,
+    #[serde(default)]
+    pub weaknesses: Vec<String>,
+    #[serde(default)]
+    pub motivation: String,
+    #[serde(default)]
+    pub relationships: std::collections::HashMap<String, String>,
+    #[serde(default)]
+    pub arc: String,
+    #[serde(default)]
+    pub inner_conflict: String,
+    #[serde(default)]
+    pub tags: Vec<String>,
+}
+
+impl CharacterCardV1Flat {
+    pub fn upgrade(self) -> CharacterCardV3 {
+        CharacterCardV3 {
+            schema_version: "3.0".into(),
+            meta: CharacterMeta {
+                created_by: "migration_v1_flat".into(),
+                template: "survivor".into(),
+                tags: vec!["migrated".into()],
+                ..Default::default()
+            },
+            identity: CharacterIdentity {
+                name: self.name,
+                alias: self.alias,
+                gender: self.gender,
+                age: self.age,
+                archetype: "survivor".into(),
+                importance: 0.5,
+                ..Default::default()
+            },
+            physical: PhysicalProfile {
+                appearance: self.appearance,
+                ..Default::default()
+            },
+            proficiencies: Proficiencies {
+                skills: self.skills.into_iter().map(|s| SkillV3 {
+                    name: s,
+                    level: 1.0,
+                    max: 10.0,
+                    category: "general".into(),
+                    tags: vec![],
+                }).collect(),
+                weaknesses: self.weaknesses,
+                ..Default::default()
+            },
+            psychology: PsychologicalProfile {
+                inner_conflict: self.inner_conflict,
+                ..Default::default()
+            },
+            behavioral: BehavioralProfile {
+                speech_style: SpeechStyle {
+                    summary: self.speech_style,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            narrative: NarrativeProfile {
+                arc: self.arc,
+                ..Default::default()
+            },
+            ..Default::default()
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// V1 character card (legacy nested, for migration)
 // ---------------------------------------------------------------------------
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -5,7 +5,7 @@ use tracing::info;
 use uuid::Uuid;
 
 use crate::models::character::{
-    upgrade_v1_to_v3, CharacterCardV1, CharacterCardV3,
+    upgrade_v1_to_v3, CharacterCardV1, CharacterCardV1Flat, CharacterCardV3,
 };
 use crate::models::world::{
     CharacterState, EnvironmentState, LocationCategory, LocationNode, ResourceStock, WorldState,
@@ -85,6 +85,13 @@ impl WorldState {
                 let state = CharacterState::from(v3.runtime.state.clone());
                 self.characters.spawn((id, v3.identity.name.clone(), state));
                 info!("加载角色 (v3): {}", v3.identity.name);
+            } else if let Ok(flat) = serde_json::from_str::<CharacterCardV1Flat>(&content) {
+                let name = flat.name.clone();
+                let v3 = flat.upgrade();
+                let id = Uuid::now_v7();
+                let state = CharacterState::from(v3.runtime.state.clone());
+                self.characters.spawn((id, v3.identity.name.clone(), state));
+                info!("加载角色 (v1-flat->v3): {}", name);
             } else if let Ok(v1) = serde_json::from_str::<CharacterCardV1>(&content) {
                 let name = v1.base.name.clone();
                 let v3 = upgrade_v1_to_v3(v1);
