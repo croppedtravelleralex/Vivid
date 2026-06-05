@@ -25,33 +25,15 @@ pub enum EngineState {
 }
 
 // ---------------------------------------------------------------------------
-// Engine config (runtime)
+// Engine config (runtime) — re-export from crate::config
 // ---------------------------------------------------------------------------
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct EngineConfig {
-    pub detailed_tick_minutes: u64,
-    pub fastforward_tick_hours: u64,
-    pub idle_threshold: u8,
-    pub max_concurrent_llm: usize,
-    pub llm_timeout_seconds: u64,
-    pub checkpoint_interval: u64,
-    pub random_seed: u64,
-}
-
-impl Default for EngineConfig {
-    fn default() -> Self {
-        Self {
-            detailed_tick_minutes: 5,
-            fastforward_tick_hours: 1,
-            idle_threshold: 3,
-            max_concurrent_llm: 10,
-            llm_timeout_seconds: 30,
-            checkpoint_interval: 100,
-            random_seed: 42,
-        }
-    }
-}
+/// Engine configuration is defined in `crate::config::EngineConfig` to
+/// guarantee a single source of truth across YAML deserialization and
+/// engine runtime.  Fields specific to the engine (max_concurrent_llm,
+/// llm_timeout_seconds, checkpoint_interval) live in the same struct so
+/// they are always synchronised.
+pub use crate::config::EngineConfig;
 
 // ---------------------------------------------------------------------------
 // Engine stats
@@ -258,6 +240,7 @@ pub struct SimulationEngine {
     pub llm_tx: mpsc::Sender<LLMRequest>,
     pub state: std::sync::Mutex<EngineState>,
     pub consecutive_idle: std::sync::atomic::AtomicU8,
+    pub is_stepping: std::sync::atomic::AtomicBool,
     pub ws_broadcaster: BroadcastSender,
     pub llm_gateway: Arc<LLMGateway>,
 }
@@ -278,6 +261,7 @@ impl SimulationEngine {
             llm_tx,
             state: std::sync::Mutex::new(EngineState::Paused),
             consecutive_idle: std::sync::atomic::AtomicU8::new(0),
+            is_stepping: std::sync::atomic::AtomicBool::new(false),
             ws_broadcaster,
             llm_gateway,
         }

@@ -61,6 +61,7 @@ async fn set_speed(
 /// POST /api/v1/simulation/step
 async fn step_simulation(State(state): State<ApiState>) -> Result<Json<Value>, StatusCode> {
     let engine = state.engine;
+    engine.is_stepping.store(true, std::sync::atomic::Ordering::Relaxed);
     // Set to Detailed temporarily for one tick
     {
         let mut engine_state = engine.state.lock().unwrap();
@@ -75,6 +76,7 @@ async fn step_simulation(State(state): State<ApiState>) -> Result<Json<Value>, S
         let mut engine_state = engine.state.lock().unwrap();
         *engine_state = EngineState::Paused;
     }
+    engine.is_stepping.store(false, std::sync::atomic::Ordering::Relaxed);
     Ok(Json(json!({
         "status": "ok",
         "data": {

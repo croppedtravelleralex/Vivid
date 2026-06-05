@@ -98,12 +98,21 @@ impl LLMGateway {
     ) -> Result<LLMResponse, LLMError> {
         // Check circuit breaker
         {
-            let circuit = self.circuit.lock().await;
+            let mut circuit = self.circuit.lock().await;
             match &circuit.state {
                 CircuitBreakerState::Open { until } if chrono::Utc::now() < *until => {
                     return Err(LLMError::CircuitBreakerOpen);
                 }
-                _ => {}
+                // Window expired: transition to HalfOpen for probe
+                CircuitBreakerState::Open { .. } => {
+                    circuit.state = CircuitBreakerState::HalfOpen;
+                    // Fall through to allow ONE probe request
+                }
+                CircuitBreakerState::HalfOpen => {
+                    // Second concurrent request while probe is in flight
+                    return Err(LLMError::CircuitBreakerOpen);
+                }
+                CircuitBreakerState::Closed => {}
             }
         }
 
@@ -193,15 +202,26 @@ impl LLMGateway {
         let mut circuit = self.circuit.lock().await;
         circuit.failure_count += 1;
         circuit.last_failure = Some(Utc::now());
-        if circuit.failure_count >= self.consecutive_failures_before_open {
-            circuit.state = CircuitBreakerState::Open {
-                until: Utc::now()
-                    + chrono::Duration::seconds(self.circuit_open_seconds as i64),
-            };
-            warn!(
-                "Circuit breaker OPEN after {} failures",
-                circuit.failure_count
-            );
+        match &circuit.state {
+            CircuitBreakerState::HalfOpen => {
+                // Probe failed — back to Open
+                circuit.state = CircuitBreakerState::Open {
+                    until: Utc::now()
+                        + chrono::Duration::seconds(self.circuit_open_seconds as i64),
+                };
+            }
+            _ => {
+                if circuit.failure_count >= self.consecutive_failures_before_open {
+                    circuit.state = CircuitBreakerState::Open {
+                        until: Utc::now()
+                            + chrono::Duration::seconds(self.circuit_open_seconds as i64),
+                    };
+                    warn!(
+                        "Circuit breaker OPEN after {} failures",
+                        circuit.failure_count
+                    );
+                }
+            }
         }
     }
 

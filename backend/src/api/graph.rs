@@ -65,9 +65,14 @@ async fn graph_locations(State(state): State<ApiState>) -> Result<Json<Value>, S
         .location_graph
         .edge_references()
         .map(|edge| {
+            // location_graph node weights are usize indices into self.locations
+            let source_idx = *world.location_graph.node_weight(edge.source()).unwrap_or(&usize::MAX);
+            let target_idx = *world.location_graph.node_weight(edge.target()).unwrap_or(&usize::MAX);
+            let source_id = world.locations.get(source_idx).map(|loc| loc.id);
+            let target_id = world.locations.get(target_idx).map(|loc| loc.id);
             json!({
-                "source": world.location_graph.node_weight(edge.source()),
-                "target": world.location_graph.node_weight(edge.target()),
+                "source": source_id,
+                "target": target_id,
                 "weight": edge.weight().distance_km,
                 "label": &edge.weight().description,
             })

@@ -322,6 +322,32 @@ impl WorldState {
 // ---------------------------------------------------------------------------
 
 impl WorldState {
+    /// Collect all ECS entities as serializable JSON array (for checkpoint).
+    fn collect_entities_json(&self) -> serde_json::Value {
+        let mut entities = vec![];
+        for entity_ref in self.characters.iter() {
+            let id = entity_ref.get::<&uuid::Uuid>().map(|r| *r);
+            let name = entity_ref.get::<&String>().map(|r| (*r).clone());
+            let state = entity_ref.get::<&CharacterState>().map(|r| (*r).clone());
+            if let (Some(id), Some(name), Some(state)) = (id, name, state) {
+                entities.push(serde_json::json!({ "id": id, "name": name, "state": state }));
+            }
+        }
+        serde_json::Value::Array(entities)
+    }
+
+    /// Restore ECS entities from JSON array (loaded from checkpoint).
+    fn restore_entities_json(&mut self, entities: &serde_json::Value) {
+        if let Some(arr) = entities.as_array() {
+            for entry in arr {
+                let id: uuid::Uuid = serde_json::from_value(entry["id"].clone()).unwrap_or_default();
+                let name: String = serde_json::from_value(entry["name"].clone()).unwrap_or_default();
+                let state: CharacterState = serde_json::from_value(entry["state"].clone()).unwrap_or_default();
+                self.characters.spawn((id, name, state));
+            }
+        }
+    }
+
     /// Serialize to bincode bytes.
     pub fn to_bincode(&self) -> Result<Vec<u8>, String> {
         let snapshot = WorldStateSnapshot {
@@ -330,12 +356,12 @@ impl WorldState {
             environment: self.environment.clone(),
             locations: self.locations.clone(),
             resources: self.resources.clone(),
-            character_count: self.character_count(),
+            entities_json: self.collect_entities_json(),
         };
         bincode::serialize(&snapshot).map_err(|e| e.to_string())
     }
 
-    /// Deserialize from bincode bytes (partial restore).
+    /// Deserialize from bincode bytes (restores characters from embedded JSON).
     pub fn from_bincode(data: &[u8], seed: u64) -> Result<Self, String> {
         let snapshot: WorldStateSnapshot = bincode::deserialize(data).map_err(|e| e.to_string())?;
         let mut world = WorldState::new(snapshot.datetime, seed);
@@ -343,6 +369,7 @@ impl WorldState {
         world.environment = snapshot.environment;
         world.locations = snapshot.locations;
         world.resources = snapshot.resources;
+        world.restore_entities_json(&snapshot.entities_json);
         Ok(world)
     }
 }
@@ -354,5 +381,5 @@ struct WorldStateSnapshot {
     environment: EnvironmentState,
     locations: Vec<LocationNode>,
     resources: HashMap<String, f64>,
-    character_count: usize,
+    entities_json: serde_json::Value,
 }

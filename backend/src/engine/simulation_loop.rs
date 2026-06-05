@@ -6,7 +6,7 @@ use rand::Rng;
 use tracing::{info, span, Level};
 
 use crate::engine::*;
-use crate::models::event::EventSummary;
+use crate::models::event::{EventPriority, EventSource, EventSummary, EventType, ScheduledEvent, Severity};
 use crate::models::timeline::SimSpeed;
 
 // ---------------------------------------------------------------------------
@@ -40,8 +40,13 @@ pub async fn run_simulation(engine: Arc<SimulationEngine>) {
                 tokio::time::sleep(Duration::from_millis(50)).await;
             }
             Action::RunDetailed => {
-                engine.detailed_tick().await;
-                tokio::time::sleep(Duration::from_millis(50)).await;
+                // Don't run if step() is handling it
+                if engine.is_stepping.load(Ordering::Relaxed) {
+                    tokio::time::sleep(Duration::from_millis(50)).await;
+                } else {
+                    engine.detailed_tick().await;
+                    tokio::time::sleep(Duration::from_millis(50)).await;
+                }
             }
         }
     }
@@ -225,6 +230,47 @@ impl SimulationEngine {
                         location_id: None,
                     },
                 );
+            }
+        }
+
+        // Phase 5: Evaluate condition triggers
+        {
+            let mut world = self.world.write().await;
+            let triggers = &world.event_system.queue.condition_triggers.clone();
+            for trigger in triggers {
+                // Check each trigger: for now, a simple resource-based check
+                let should_fire = match &trigger.condition.variable {
+                    Some(var) if var.starts_with("resources.") => {
+                        let resource_name = var.trim_start_matches("resources.");
+                        let threshold = trigger.condition.value.as_ref()
+                            .and_then(|v| v.as_f64())
+                            .unwrap_or(0.0);
+                        world.resources.get(resource_name)
+                            .map(|&current| current < threshold)
+                            .unwrap_or(false)
+                    }
+                    Some(_) | None => false,
+                };
+
+                if should_fire {
+                    let trigger_time = world.timeline.time;
+                    let title = trigger.effect.description.clone();
+                    let scheduled = ScheduledEvent {
+                        id: uuid::Uuid::now_v7(),
+                        trigger_time,
+                        event_type: EventType::ExternalStimulus(title.clone()),
+                        title: title.clone(),
+                        description: trigger.effect.message.clone(),
+                        participants: vec![],
+                        priority: EventPriority::Normal,
+                        severity: Severity::Major,
+                        source: EventSource::Conditional,
+                        one_shot: trigger.one_shot,
+                        fired: false,
+                    };
+                    world.event_system.queue.push(scheduled);
+                    info!("条件触发器已触发: {}", title);
+                }
             }
         }
 

@@ -29,7 +29,17 @@ pub struct EngineConfig {
     pub fastforward_tick_hours: u64,
     pub idle_threshold: u8,
     pub random_seed: u64,
+    #[serde(default = "default_max_concurrent_llm")]
+    pub max_concurrent_llm: usize,
+    #[serde(default = "default_llm_timeout_seconds")]
+    pub llm_timeout_seconds: u64,
+    #[serde(default = "default_checkpoint_interval")]
+    pub checkpoint_interval: u64,
 }
+
+fn default_max_concurrent_llm() -> usize { 10 }
+fn default_llm_timeout_seconds() -> u64 { 30 }
+fn default_checkpoint_interval() -> u64 { 100 }
 
 // ---------------------------------------------------------------------------
 // LLM

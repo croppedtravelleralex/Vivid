@@ -69,9 +69,9 @@ async fn main() {
         detailed_tick_minutes: config.engine.detailed_tick_minutes,
         fastforward_tick_hours: config.engine.fastforward_tick_hours,
         idle_threshold: config.engine.idle_threshold,
-        max_concurrent_llm: config.llm.max_concurrent,
-        llm_timeout_seconds: config.llm.timeout_seconds,
-        checkpoint_interval: config.checkpoint.interval,
+        max_concurrent_llm: config.engine.max_concurrent_llm,
+        llm_timeout_seconds: config.engine.llm_timeout_seconds,
+        checkpoint_interval: config.engine.checkpoint_interval,
         random_seed: config.engine.random_seed,
     };
 

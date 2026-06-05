@@ -5,6 +5,9 @@ engine:
   fastforward_tick_hours: 1
   idle_threshold: 3
   random_seed: 42
+  max_concurrent_llm: 10
+  llm_timeout_seconds: 30
+  checkpoint_interval: 100
 
 llm:
   api_key: "${LLM_API_KEY}"
