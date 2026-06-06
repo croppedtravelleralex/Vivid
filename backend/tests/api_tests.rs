@@ -448,7 +448,8 @@ mod api_tests {
 
         assert_eq!(status, StatusCode::OK);
         assert_eq!(body["status"], "ok");
-        assert!(body["data"]["tags"].as_array().unwrap().is_empty());
+        // Tagged events/chars counts default to 0 in test engine
+        assert!(body["data"]["tagged_events"].is_number());
     }
 
     #[tokio::test]
@@ -458,7 +459,8 @@ mod api_tests {
 
         assert_eq!(status, StatusCode::OK);
         assert_eq!(body["status"], "ok");
-        assert!(body["data"].as_array().unwrap().is_empty());
+        assert!(body["data"]["active"].is_array());
+        assert!(body["data"]["archived"].is_array());
     }
 
     // ===================================================================

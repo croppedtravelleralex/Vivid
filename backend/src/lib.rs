@@ -1,5 +1,6 @@
 pub mod api;
 pub mod config;
+pub mod council;
 pub mod engine;
 pub mod llm;
 pub mod models;

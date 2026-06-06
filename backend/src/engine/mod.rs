@@ -10,6 +10,9 @@ pub mod event_memory;
 pub mod probability_tree;
 pub mod narrative_filter;
 
+/// Tag system (doc 13, section 二/三).
+pub mod tags;
+
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 
@@ -17,7 +20,7 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::{broadcast, mpsc, RwLock};
 
 pub use crate::models::timeline::SimSpeed;
-use crate::models::world::{TagHeatmap, TagThread, WorldState};
+use crate::models::world::WorldState;
 use crate::llm::gateway::LLMGateway;
 
 // ---------------------------------------------------------------------------
@@ -227,14 +230,13 @@ pub struct DecisionSummary {
 }
 
 // ---------------------------------------------------------------------------
-// TagIndex (placeholder for M4)
+// TagIndex — delegated to the `tags` submodule (doc 13 二/三)
 // ---------------------------------------------------------------------------
 
-#[derive(Debug, Clone, Default)]
-pub struct TagIndex {
-    pub heatmap: TagHeatmap,
-    pub threads: Vec<TagThread>,
-}
+/// Thread-aware tag index.  The concrete implementation lives in
+/// `self::tags::index::TagIndexManager`; this alias preserves the
+/// `engine::TagIndex` name used by `SimulationEngine` and existing callers.
+pub use self::tags::TagIndex;
 
 // ---------------------------------------------------------------------------
 // SimulationEngine — main engine struct

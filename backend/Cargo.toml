@@ -16,7 +16,7 @@ hecs = "0.11"
 bhava = "2.0"
 redb = "4.1"
 chrono = { version = "0.4", features = ["serde"] }
-uuid = { version = "1", features = ["v7", "serde", "fast-rng"] }
+uuid = { version = "1", features = ["v4", "v7", "serde", "fast-rng"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 thiserror = "2"
